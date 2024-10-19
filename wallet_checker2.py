@@ -26,7 +26,7 @@ else:
 bot = telebot.TeleBot(BOT_API_KEY)
 
 # Путь к файлу для хранения кэша
-CACHE_FILE = 'balance_cache.pkl'
+CACHE_FILE = 'balance_cache2.pkl'
 
 # Функция для загрузки кэша из файла
 def load_cache():
@@ -41,7 +41,7 @@ def save_cache(cache):
         pickle.dump(cache, f)
 
 # Загружаем кэш при старте программы
-balance_cache = load_cache()
+balance_cache2 = load_cache()
 
 # Функция генерации кошелька
 def generate_wallet():
