@@ -1,1 +1,1 @@
-worker: python wallet_checker_bot.py
+worker: python wallet_checker2.py
