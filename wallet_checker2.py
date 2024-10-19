@@ -41,7 +41,7 @@ def save_cache(cache):
         pickle.dump(cache, f)
 
 # Загружаем кэш при старте программы
-balance_cache2 = load_cache()
+balance_cache = load_cache()
 
 # Функция генерации кошелька
 def generate_wallet():
@@ -54,14 +54,17 @@ def generate_wallet():
 # Функция проверки баланса с кэшированием
 def check_balance(address):
     # Если адрес уже в кэше, вернуть его баланс
-    if address in balance_cache:
-        return balance_cache[address]
+    if address in balance_cache2:
+        return balance_cache2[address]
 
     # В противном случае, запрашиваем баланс через API
-    balance = w3.eth.get_balance(address)
-    balance_eth = w3.from_wei(balance, 'ether')
-
-    return balance_eth
+    try:
+        balance = w3.eth.get_balance(address)
+        balance_eth = w3.from_wei(balance, 'ether')
+        return balance_eth
+    except Exception as e:
+        print(f"Ошибка при проверке баланса адреса {address}: {e}")
+        return 0  # Вернуть 0, если произошла ошибка
 
 # Функция проверки баланса для нескольких кошельков
 def check_multiple_wallets(wallets):
@@ -73,10 +76,10 @@ def check_multiple_wallets(wallets):
             results.append((wallet[0], wallet[1], balance))
 
             # Добавляем в кэш только после всех операций
-            balance_cache[wallet[1]] = balance
+            balance_cache2[wallet[1]] = balance
 
     # Сохраняем кэш после завершения всех проверок
-    save_cache(balance_cache)
+    save_cache(balance_cache2)
     return results
 
 # Функция для проверки баланса тестового адреса с известным балансом и отправки результата в чат
