@@ -26,7 +26,7 @@ else:
 bot = telebot.TeleBot(BOT_API_KEY)
 
 # Путь к файлу для хранения кэша
-CACHE_FILE = 'balance_cache2.pkl'
+CACHE_FILE = 'balance_cache.pkl'
 
 # Функция для загрузки кэша из файла
 def load_cache():
@@ -53,20 +53,17 @@ def generate_wallet():
 
 # Функция проверки баланса с кэшированием
 def check_balance(address):
-    # Если адрес уже в кэше, вернуть его баланс
-    if address in balance_cache2:
-        return balance_cache2[address]
-
-    # В противном случае, запрашиваем баланс через API
     try:
+        if address in balance_cache:
+            return balance_cache[address]
         balance = w3.eth.get_balance(address)
         balance_eth = w3.from_wei(balance, 'ether')
         return balance_eth
     except Exception as e:
-        print(f"Ошибка при проверке баланса адреса {address}: {e}")
-        return 0  # Вернуть 0, если произошла ошибка
+        print(f"Ошибка при проверке баланса для {address}: {e}")
+        return 0  # Возвращаем 0, если произошла ошибка
 
-# Функция проверки баланса для нескольких кошельков
+# Функция для проверки баланса нескольких кошельков
 def check_multiple_wallets(wallets):
     results = []
     with ThreadPoolExecutor(max_workers=10) as executor:
@@ -74,12 +71,11 @@ def check_multiple_wallets(wallets):
 
         for wallet, balance in future_results:
             results.append((wallet[0], wallet[1], balance))
-
             # Добавляем в кэш только после всех операций
-            balance_cache2[wallet[1]] = balance
+            balance_cache[wallet[1]] = balance
 
     # Сохраняем кэш после завершения всех проверок
-    save_cache(balance_cache2)
+    save_cache(balance_cache)
     return results
 
 # Функция для проверки баланса тестового адреса с известным балансом и отправки результата в чат
@@ -127,4 +123,7 @@ def test_balance(message):
 # Запуск бота
 if __name__ == '__main__':
     print("Бот запущен и готов к работе.")
-    bot.polling()
+    try:
+        bot.polling(none_stop=True)
+    except Exception as e:
+        print(f"Ошибка при запуске бота: {e}")
